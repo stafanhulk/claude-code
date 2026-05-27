@@ -47,7 +47,7 @@ triggers:
 
 ```
 {项目根}/
-├── CLAUDE.md                      ← 顶部追加 @.ai-sediment/INDEX.md
+├── CLAUDE.md                      ← 末尾追加 `- 项目知识沉淀 @.ai-sediment/INDEX.md`
 └── .ai-sediment/
     ├── INDEX.md                   ← 索引（被 CLAUDE.md 自动加载）
     ├── how-it-works.md            ← 架构 / 设计决策
@@ -80,7 +80,7 @@ triggers:
 
 | Shortcut | 说明 |
 |----------|------|
-| [`+init`](references/sediment-categories.md) | 创建 `.ai-sediment/` 目录、生成各分类空文件、默认将 `.ai-sediment/` 加入 `.gitignore`（用户明确说"不加"时跳过）、在 `CLAUDE.md` 顶部追加 `@.ai-sediment/INDEX.md` 引用 |
+| [`+init`](references/sediment-categories.md) | 创建 `.ai-sediment/` 目录、生成各分类空文件、默认将 `.ai-sediment/` 加入 `.gitignore`（用户明确说"不加"时跳过）、在 `CLAUDE.md` 末尾追加 `- 项目知识沉淀 @.ai-sediment/INDEX.md` 引用行 |
 | [`+save`](references/sediment-categories.md) | 直接将一条内容写入指定分类（含去重检查与评分） |
 | [`+extract`](references/sediment-extract.md) | 扫描当前会话，提取候选条目，分类后请用户确认再落盘；命中已有条目时 +1 |
 | `+list` | 读取并展示 `INDEX.md` 全部条目标题与评分 |

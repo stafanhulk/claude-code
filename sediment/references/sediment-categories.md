@@ -244,7 +244,7 @@ INDEX.md 同时承担两个职责：① 通过 `CLAUDE.md @.ai-sediment/INDEX.md
    - 已有 → 跳过。
 4. 检查 `CLAUDE.md`：
    - 不存在 → 询问用户是否创建，确认后写入最小骨架并加入引用行。
-   - 存在但无 `@.ai-sediment/INDEX.md` → **明确告知用户**将在文件顶部追加引用行，征得同意后再写。
+   - 存在但无 `@.ai-sediment/INDEX.md` → **明确告知用户**将在文件末尾追加 `- 项目知识沉淀 @.ai-sediment/INDEX.md` 引用行，征得同意后再写。
    - 已有引用 → 跳过。
 5. 输出：
 
