@@ -1,1 +1,0 @@
-console.log('[lwb]测试新建');
