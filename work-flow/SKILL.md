@@ -25,6 +25,7 @@ triggers:
 **CRITICAL — 知识库映射固定为「镜像目标项目源码树」：`<项目>/src/auth/` ↔ `<项目>/knowledge/src/auth/KNOWLEDGE.md`，一个模块一份、与源码目录一一对应。禁止自创其他路径或把多个模块知识混进一份。**
 **CRITICAL — 开发阶段改动若影响已记录的知识，MUST 提议更新对应 KNOWLEDGE.md（只提议不擅自落盘，用户确认后写）。禁止改完代码把知识丢一边。**
 **CRITICAL — 写入需求文档/方案文档/知识库属落盘操作；目标文件已存在时 MUST 先提示用户选 覆盖 / 更新 / 仅预览，禁止直接覆盖。**
+**CRITICAL — 需求文档、技术方案属个人本地过程产物，不进 git。方案文档写在项目目录内（`<项目>/docs/design/`），首次落盘前 MUST 确保该项目 `.gitignore` 含 `docs/design/`；工作区根若是 git 仓库，同理确保 `.gitignore` 含 `requirements/`。**
 **CRITICAL — `+kb` 首次为项目建库时 MUST 先问用户「个人配置 or 共享配置」：个人 → 写 `<项目>/CLAUDE.local.md` 且确保 `.gitignore` 含它（不进 git）；共享 → 写 `<项目>/CLAUDE.md`（进 git 团队共享）。再往所选文件写知识库加载约定块（说明 KNOWLEDGE.md 在哪、怎么读、怎么更新）。改这两个文件属敏感操作，仅在用户授权后追加,已有约定块则跳过。**
 **CRITICAL — 范围克制：只做当前需求，禁止顺手重构周边或替用户设计未来需求。开发结果由人工验收，skill 不自行判定验收通过。**
 
@@ -117,7 +118,7 @@ find . -maxdepth 2 \( -name package.json -o -name pom.xml -o -name build.gradle 
    - 先加载该项目已有 `knowledge/` 作背景；就近优先、向上补充。
    - 逻辑链条有断点、业务不懂、"为什么这么设计"拿不准 → AskUserQuestion 问用户。
    - 复杂度判断：≥2 个关键决策点先列选型+取舍让用户拍板；简单则出单一推荐方案。
-   - 生成方案写 `<项目>/docs/design/<需求id>.md`（分支树结构，模板见 design-guide）。
+   - 生成方案写 `<项目>/docs/design/<需求id>.md`（分支树结构，模板见 design-guide）。首次在该项目落方案前，确保其 `.gitignore` 含 `docs/design/`（方案不进 git）。
 3. **知识落盘判定（每次必做,不可静默跳过）**：方案完成后显式判定本次有无值得沉淀的隐藏约束/业务缘由——有则按 knowledge-guide 提议落 KNOWLEDGE.md,无则明说原因跳过(详见 design-guide 五)。
 
 ### 阶段 3：开发（+dev）
