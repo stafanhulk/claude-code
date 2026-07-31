@@ -9,18 +9,24 @@
 | 来源 | 判定 | 抓取方式 |
 |------|------|---------|
 | 本地文档 | 入参是存在的 `.md` 文件路径 | `Read` 工具直接读 |
+| 本地文件夹 | 入参是存在的目录，内含 `.md` + 图片 | Read 目录里的 `.md` 拿文本 + **逐张 Read 图片**（PNG/JPG，Read 工具能直接看）拿原型/交互/流程图 |
 | 飞书文档 | 入参含 `feishu.cn` / `larksuite` / 形如文档 URL | `lark-cli docs +fetch --api-version v2 --doc "<url>"` |
-| 判不准 | 既不是本地文件也不像飞书链接 | AskUserQuestion 问用户来源，禁止猜 |
+| 判不准 | 既不是本地文件/目录也不像飞书链接 | AskUserQuestion 问用户来源，禁止猜 |
 
 ```bash
-# 本地判定
+# 本地文件判定
 [ -f "<入参>" ] && case "<入参>" in *.md) echo "本地 md";; esac
-
+# 本地文件夹判定（含 md + 图）
+[ -d "<入参>" ] && find "<入参>" -maxdepth 2 \( -name '*.md' -o -name '*.png' -o -name '*.jpg' -o -name '*.jpeg' \)
 # 飞书抓取
 lark-cli docs +fetch --api-version v2 --doc "<文档URL或token>"
 ```
 
-飞书 fetch 失败（未登录/无权限）→ 如实报错并提示用户 `lark-cli auth login`，禁止编造文档内容。
+**飞书抓取只能拿文本，图片/附件会丢**。飞书文档里的原型图、交互截图、流程图对理解需求往往关键。故：
+
+- 飞书 fetch 后，若发现功能描述依赖图才说得清、或明显有缺失 → **AskUserQuestion 问用户补清**，禁止编造。
+- 图信息量大、问不过来时 → **建议用户把飞书文档导出成「md + 图片」的本地文件夹**再喂给 skill（走上面「本地文件夹」来源），Read 能直接看图，上下文最全。
+- 飞书 fetch 失败（未登录/无权限）→ 如实报错并提示 `lark-cli auth login`，禁止编造文档内容。
 
 ## 二、拆分粒度
 
@@ -45,7 +51,7 @@ lark-cli docs +fetch --api-version v2 --doc "<文档URL或token>"
 
 ## 三、定位涉及项目
 
-基于 `+init` 探测出的真实候选项目（父目录下的子目录,含前端与后端）判断：
+基于 `+init` 探测出的真实候选项目（父目录下的子目录,含前端与后端）判断。**若尚未初始化（无 `requirements/` 或没有候选项目清单）→ 先执行 `+init` 探测一遍再往下**：
 
 1. 从需求描述里的功能/页面/模块/接口关键词，对候选项目名、目录结构做匹配。前端功能 → 前端项目,后端接口/数据/逻辑 → 后端项目。
 2. 匹配不确定时用 `grep` / `find` 到候选项目里搜关键词佐证，禁止仅凭项目名猜。
@@ -55,15 +61,15 @@ lark-cli docs +fetch --api-version v2 --doc "<文档URL或token>"
 
 ## 四、需求文档模板
 
-写入 `requirements/<需求id>.md`。`<需求id>` 用 kebab-case 短标识（如 `login-sso`、`order-export`）。
+写入 `requirements/<拆分日期>/<需求id>.md`（日期取当天如 `2026-07-21`，同一批拆分的需求归同一文件夹，整批做完可 `rm -r` 该文件夹一键清除）。`<需求id>` 用 kebab-case 短标识（如 `login-sso`、`order-export`），需**全局唯一**（后续按 id 跨日期文件夹定位）。
 
 ```markdown
 ---
 id: <需求id>
 title: <一句话需求标题>
-projects: [project1, project2]     # 涉及的项目名，来自父目录真实子目录
+projects: [project1(split), project2(split)]  # 项目名(状态)，拆分时都是 split，各阶段各自推进
+depends_on: [其他需求id]           # 本需求依赖的前置需求（无则空数组），供多人协作排期
 source: <本地文档路径 | 飞书URL>    # 需求出处，便于回溯
-status: split                      # split / designed / dev / done，由各阶段推进
 ---
 
 ## 背景
@@ -83,16 +89,18 @@ status: split                      # split / designed / dev / done，由各阶�
 <拆分时发现的歧义、缺失信息，留给设计阶段问用户。>
 ```
 
-- `status` 字段是阶段推进的锚：拆分完 `split`，方案完成 `designed`，开发中 `dev`，验收通过（人工确认后）`done`。
+- **项目状态记在 `projects` 里**（`项目名(状态)`）：单项目取值 `split`/`designed`/`dev`/`done`，各阶段只推进当前所动项目，需求整体阶段取最落后项目（记法见 SKILL.md「多项目进度」）。拆分时全部初始为 `split`。
+- **`depends_on`**：若本需求依赖别的需求先完成（如后端接口先于前端联调），列前置需求 id；无依赖填 `[]`。拆分时按功能点依赖关系填，供 `+status` 和排期参考。
 - 抓取文档信息不全时，**不要编造**背景/验收，写进「待澄清」，设计阶段再问。
 
 ## 五、落盘与输出
 
-- 每份需求写 `requirements/<需求id>.md`。已存在 → 提示用户选 覆盖 / 更新 / 仅预览。
+- **落盘前查重名**：`find requirements -name "<需求id>.md"`。若别的日期文件夹已有同名 id → 提示用户改名（id 要全局唯一），改完再落。
+- 每份需求写 `requirements/<拆分日期>/<需求id>.md`（日期文件夹不存在则先建）。同路径已存在 → 提示用户选 覆盖 / 更新 / 仅预览。
 - 全部落盘后输出：
 
 ```
-[拆分] 来源：<文档>  拆出 N 个需求
+[拆分] 来源：<文档>  拆出 N 个需求  → requirements/<日期>/
   - <id1>  <标题>  → projects: [..]
   - <id2>  <标题>  → projects: [..]
 下一步：/work-flow +design <需求id>
