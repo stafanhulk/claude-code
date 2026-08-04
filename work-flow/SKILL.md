@@ -117,7 +117,7 @@ find . -maxdepth 2 \( -name package.json -o -name pom.xml -o -name build.gradle 
 - 像 id 但需求/方案都找不到 → 提示先 `/work-flow +design <id>`，不擅自开写。
 - 自由文字无 id → 普通开发，把用户输入当开发需求做。
 
-开发开始把该项目 status 置 `dev`、验收通过置 `done`（见「多项目进度」）；其余按 dev-guide 走。
+开发开始把该项目 status 置 `dev`、验收通过置 `done`（见「多项目进度」）；其余按 dev-guide 走。**每次开发收尾 MUST 单独输出「📚 知识库检查」醒目块（放回复最末尾，无论有无更新都要出），别让知识库提示淹在开发总结里（格式见 dev-guide 二）。**
 
 ### 多项目进度（status 记到项目粒度，仅本地）
 
