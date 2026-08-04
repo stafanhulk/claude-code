@@ -26,6 +26,7 @@ lark-cli docs +fetch --api-version v2 --doc "<文档URL或token>"
 
 - 飞书 fetch 后，若发现功能描述依赖图才说得清、或明显有缺失 → **AskUserQuestion 问用户补清**，禁止编造。
 - 图信息量大、问不过来时 → **建议用户把飞书文档导出成「md + 图片」的本地文件夹**再喂给 skill（走上面「本地文件夹」来源），Read 能直接看图，上下文最全。
+- **`lark-cli` 未安装**（命令不存在）→ 飞书抓取依赖独立工具 `lark-cli`，本 skill 不含它。提示用户：飞书来源需先安装并登录 `lark-cli`（`lark-cli auth login`），或改用「本地 md / md+图文件夹」来源（无需任何额外依赖）。不预先弹安装提示——只用本地来源的用户不需要装。
 - 飞书 fetch 失败（未登录/无权限）→ 如实报错并提示 `lark-cli auth login`，禁止编造文档内容。
 
 ## 二、拆分粒度
